@@ -5,6 +5,11 @@ import org.springframework.stereotype.Service
 @Service
 class TradeService(private val repository: TradeRepository) {
 
+    /*
+        Create a trade, called after an order is received and created
+        we can add extra validations to confirm orders belong to same pair
+        we can add quantity checks to execute an order partially or completely
+    */
     fun createTrade(makerOrder: LimitOrder, takerOrder: LimitOrder){
         val trade = Trade(
             price = makerOrder.price,
@@ -16,6 +21,12 @@ class TradeService(private val repository: TradeRepository) {
         repository.save(trade)
     }
 
+    /*
+        Get all the trades for a given pair and create a response array
+        For improvements:
+         - we can add limit param
+         - we can add filters for takerSide or time period
+     */
     fun getByPair(pair: String): MutableList<Any>{
         val list: MutableList<Any> = mutableListOf()
         val trades = repository.findByCurrencyPair(pair)

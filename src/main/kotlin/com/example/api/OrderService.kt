@@ -5,6 +5,12 @@ import org.springframework.stereotype.Service
 @Service
 class OrderService(private val repository: LimitOrderRepository, private val tradeService: TradeService) {
 
+    /*
+        Save the order object (Validations are not added)
+        After save, if it's not a maker order then check for counter orders
+        If counter orders are present then make the trade, else the order lies in orderbook
+        This is right now an inplace implementation, for prod level we will be using queues for this
+     */
     fun create(order: LimitOrder): MutableMap<String, String?>{
         val generatedId = java.util.UUID.randomUUID().toString()
         order.uniqueId = generatedId
@@ -20,9 +26,9 @@ class OrderService(private val repository: LimitOrderRepository, private val tra
          */
         if(!order.postOnly){
             val counterOrders: List<LimitOrder> = if(order.side == "buy") {
-                repository.findByPairAndSideOrderByPriceAsc(order.pair, "sell")
+                repository.findByPairAndSideAndStateOrderByPriceAsc(order.pair, "sell")
             } else {
-                repository.findByPairAndSideOrderByPriceDesc(order.pair, "buy")
+                repository.findByPairAndSideAndStateOrderByPriceDesc(order.pair, "buy")
             }
             if(counterOrders.isNotEmpty()){
                 val counterOrder = counterOrders[0]
@@ -45,9 +51,16 @@ class OrderService(private val repository: LimitOrderRepository, private val tra
         return map
     }
 
+    /*
+        Get sell orders (Ask Orders) in ascending order of price and
+        Get buy orders (Bid Orders) in descending order of price
+        then create the final response map
+        For improvements:
+         - we can add limit param
+     */
     fun getByPair(pair: String): MutableMap<String, Any>{
-        val askOrders = repository.findByPairAndSideOrderByPriceAsc(pair, "sell")
-        val bidOrders = repository.findByPairAndSideOrderByPriceDesc(pair, "buy")
+        val askOrders = repository.findByPairAndSideAndStateOrderByPriceAsc(pair, "sell")
+        val bidOrders = repository.findByPairAndSideAndStateOrderByPriceDesc(pair, "buy")
         val map: MutableMap<String, Any> = mutableMapOf()
         map["Asks"] = askOrders
         map["Bids"] = bidOrders

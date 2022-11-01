@@ -47,22 +47,26 @@ class RepositoriesTests @Autowired constructor(
     }
 
     @Test
-    fun `When orders present for side sell and pair then findByPairAndSideOrderByPriceAsc should return LimitOrders in ascending order`() {
+    fun `When orders present for side sell and pair then findByPairAndSideAndStateOrderByPriceAsc should return LimitOrders in ascending order`() {
         val limitOrder1 = LimitOrder("1234-abcd-5678", "2", "BTCZAR", "1200", "10", "sell", "0395", "new")
         entityManager.persist(limitOrder1)
         entityManager.flush()
         val limitOrder2 = LimitOrder("9012-efgh-3456", "3", "BTCZAR", "1000", "12", "sell", "abs991", "new")
         entityManager.persist(limitOrder2)
         entityManager.flush()
+        val limitOrder3 = LimitOrder("7890-ijkl-1234", "3", "BTCZAR", "1000", "12", "sell", "abs991", "executed")
+        entityManager.persist(limitOrder3)
+        entityManager.flush()
 
-        val records = limitOrderRepository.findByPairAndSideOrderByPriceAsc("BTCZAR", "sell")
+        val records = limitOrderRepository.findByPairAndSideAndStateOrderByPriceAsc("BTCZAR", "sell")
+        assertThat(records.size).isEqualTo(2)
         val record1 = records[0]
         val record2 = records[1]
         assertThat(record1.price).isLessThan(record2.price)
     }
 
     @Test
-    fun `When no orders present for side sell and pair then findByPairAndSideOrderByPriceAsc should return Empty List`() {
+    fun `When no orders present for side sell and pair then findByPairAndSideAndStateOrderByPriceAsc should return Empty List`() {
         val limitOrder1 = LimitOrder("1234-abcd-5678", "2", "BTCUSDT", "1200", "10", "sell", "0395", "new")
         entityManager.persist(limitOrder1)
         entityManager.flush()
@@ -70,27 +74,31 @@ class RepositoriesTests @Autowired constructor(
         entityManager.persist(limitOrder2)
         entityManager.flush()
 
-        val records = limitOrderRepository.findByPairAndSideOrderByPriceAsc("BTCZAR", "sell")
+        val records = limitOrderRepository.findByPairAndSideAndStateOrderByPriceAsc("BTCZAR", "sell")
         assertThat(records.size).isEqualTo(0)
     }
 
     @Test
-    fun `When orders present for side buy and pair then findByPairAndSideOrderByPriceDesc should return LimitOrders in descending order`() {
+    fun `When orders present for side buy and pair then findByPairAndSideAndStateOrderByPriceDesc should return LimitOrders in descending order`() {
         val limitOrder1 = LimitOrder("1234-abcd-5678", "2", "BTCZAR", "1200", "10", "buy", "0395", "new")
         entityManager.persist(limitOrder1)
         entityManager.flush()
         val limitOrder2 = LimitOrder("9012-efgh-3456", "3", "BTCZAR", "1000", "12", "buy", "abs991", "new")
         entityManager.persist(limitOrder2)
         entityManager.flush()
+        val limitOrder3 = LimitOrder("7890-ijkl-1234", "3", "BTCZAR", "1000", "12", "buy", "abs2391", "executed")
+        entityManager.persist(limitOrder3)
+        entityManager.flush()
 
-        val records = limitOrderRepository.findByPairAndSideOrderByPriceDesc("BTCZAR", "buy")
+        val records = limitOrderRepository.findByPairAndSideAndStateOrderByPriceDesc("BTCZAR", "buy")
+        assertThat(records.size).isEqualTo(2)
         val record1 = records[0]
         val record2 = records[1]
         assertThat(record1.price).isGreaterThan(record2.price)
     }
 
     @Test
-    fun `When no orders present for side buy and pair then findByPairAndSideOrderByPriceDesc should return Empty List`() {
+    fun `When no orders present for side buy and pair then findByPairAndSideAndStateOrderByPriceDesc should return Empty List`() {
         val limitOrder1 = LimitOrder("1234-abcd-5678", "2", "BTCUSDT", "1200", "10", "buy", "0395", "new")
         entityManager.persist(limitOrder1)
         entityManager.flush()
@@ -98,13 +106,13 @@ class RepositoriesTests @Autowired constructor(
         entityManager.persist(limitOrder2)
         entityManager.flush()
 
-        val records = limitOrderRepository.findByPairAndSideOrderByPriceDesc("BTCZAR", "buy")
+        val records = limitOrderRepository.findByPairAndSideAndStateOrderByPriceDesc("BTCZAR", "buy")
         assertThat(records.size).isEqualTo(0)
     }
     /*
         More test cases for multiple combination of pair and side can be added for following functions:
-        findByPairAndSideOrderByPriceAsc
-        findByPairAndSideOrderByPriceDesc
+        findByPairAndSideAndStateOrderByPriceAsc
+        findByPairAndSideAndStateOrderByPriceDesc
      */
 
     /*
