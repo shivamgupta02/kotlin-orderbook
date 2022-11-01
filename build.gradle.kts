@@ -28,7 +28,8 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("junit:junit:4.13.1")
     implementation("org.junit.jupiter:junit-jupiter:5.8.1")
-    runtimeOnly("com.h2database:h2")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.springframework.boot:spring-boot-devtools")
 	kapt("org.springframework.boot:spring-boot-configuration-processor")
 

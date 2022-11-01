@@ -9,12 +9,13 @@ class OrderService(private val repository: LimitOrderRepository, private val tra
         val generatedId = java.util.UUID.randomUUID().toString()
         order.uniqueId = generatedId
         /*
-            1. Add user based checks here to validate: user's balance & user's permissions
-            2. If customerOrderId is provided Add check to see if an open order exists with the same id
+            1. Keep a check to see if the generatedId is unique before assigning it to order object
+            2. Add user based checks here to validate: user's balance & user's permissions
+            3. If customerOrderId is provided Add check to see if an open order exists with the same id
          */
         val order = repository.save(order)
         /*
-            make trade if counter order is present; only in the case when its not a maker order
+            make trade if counter order is present; only in the case when it's not a maker order
             right now it will match the order with the same user's counter order too, this can be handled as well
          */
         if(!order.postOnly){
@@ -28,6 +29,7 @@ class OrderService(private val repository: LimitOrderRepository, private val tra
                 /*
                     Match the current order with the counter order
                     Right now we are not considering the case of partial matching to make the matching simple
+                    Also error handling can be further added here
                  */
                 tradeService.createTrade(counterOrder, order)
                 counterOrder.state = "executed"
